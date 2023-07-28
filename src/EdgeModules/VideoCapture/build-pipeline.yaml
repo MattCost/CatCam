@@ -1,16 +1,20 @@
+pool:
+  vmImage: 'ubuntu-latest'
+  
 steps:
 - task: Docker@2
-  displayName: Docker Build of Video Watcher module
+  displayName: Docker Build of Video Capture module
   inputs:
-    repository: 'video-capture'
     command: 'build'
+    repository: 'video-capture'
+    containerRegistry: 'catcamacr'
     Dockerfile: 'src/EdgeModules/VideCapture/Dockerfile.amd64'
     buildContext: 'src/EdgeModules/VideCapture'
     tags: 'amd64-latest'
 
 - task: Docker@2
-  displayName: Docker Push of Vide Watcher module
+  displayName: Docker Push of Vide Capture module
   inputs:
     command: 'push'
-    containerRegistry: ''
     repository: 'video-capture'
+    containerRegistry: 'catcamacr'
