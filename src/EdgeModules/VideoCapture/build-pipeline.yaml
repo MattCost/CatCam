@@ -1,5 +1,5 @@
-pool:
-  vmImage: 'ubuntu-latest'
+pool: azure-vms
+  # vmImage: 'ubuntu-latest'
 
 trigger:
   paths:
