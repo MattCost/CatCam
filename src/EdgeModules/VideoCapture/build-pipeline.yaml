@@ -1,4 +1,19 @@
+steps:
+
 - task: Docker@2
+  displayName: Docker Build of Video Watcher module
   inputs:
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
+    command: 'build'
+    containerRegistry: ''
+    repository: 'video-capture'
+    Dockerfile: 'Dockerfile.amd64'
+    buildContext: src/EdgeModules/VideCapture
+    tags: |
+      amd64-latest
+
+- task: Docker@2
+  displayName: Docker Push of Vide Watcher module
+  inputs:
+    command: 'push'
+    containerRegistry: ''
+    repository: 'video-capture'
