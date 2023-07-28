@@ -5,9 +5,9 @@ steps:
 - task: Docker@2
   displayName: Docker Build of Video Capture module
   inputs:
-    command: 'build'
-    repository: 'video-capture'
     containerRegistry: 'catcamacr'
+    repository: 'video-capture'
+    command: 'build'
     Dockerfile: 'src/EdgeModules/VideCapture/Dockerfile.amd64'
     buildContext: 'src/EdgeModules/VideCapture'
     tags: 'amd64-latest'
