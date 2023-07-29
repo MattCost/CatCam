@@ -1,7 +1,7 @@
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
 
-namespace CatCam.EdgeModules.FileWatcher;
+namespace CatCam.EdgeModules.FileWatcher.Services;
 
 public class DebugModuleClientWrapper : IModuleClientWrapper
 {
@@ -40,7 +40,7 @@ public class DebugModuleClientWrapper : IModuleClientWrapper
     public Task SendEventAsync(string outputName, Message message, CancellationToken cancellationToken)
     {
         
-        return Task.Run( () => _logger.LogDebug("Sending {Message} to {Output}", message.BodyStream, outputName) , cancellationToken);
+        return Task.Run( () => _logger.LogDebug("Module Client sending msg to {Output}", outputName) , cancellationToken);
     }
 
     public void SetConnectionStatusChangesHandler(ConnectionStatusChangesHandler statusChangesHandler)

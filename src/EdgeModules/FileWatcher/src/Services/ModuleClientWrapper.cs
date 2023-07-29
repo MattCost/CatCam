@@ -2,11 +2,11 @@ using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Client.Transport.Mqtt;
 using Microsoft.Azure.Devices.Shared;
 
-namespace CatCam.EdgeModules.FileWatcher;
+namespace CatCam.EdgeModules.FileWatcher.Services;
 
 public class ModuleClientWrapper : IModuleClientWrapper
 {
-    private ModuleClient _moduleClient;
+    private readonly ModuleClient _moduleClient;
 
     public ModuleClientWrapper()
     {
