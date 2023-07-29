@@ -29,6 +29,6 @@ public class IndexModel : PageModel
         (
                 "TestAPI",
                 options => options.RelativePath = "WeatherForecast"
-        );
+        ) ?? new List<WeatherForecast>(TheWeather);
     }
 }
