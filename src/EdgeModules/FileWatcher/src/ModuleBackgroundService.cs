@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Devices.Client;
+﻿using CatCam.EdgeModules.FileWatcher.Services;
+using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Client.Transport.Mqtt;
 using Microsoft.Azure.Devices.Shared;
 using System.Text;
@@ -9,7 +10,6 @@ internal class ModuleBackgroundService : BackgroundService
 {
     private readonly ILogger<ModuleBackgroundService> _logger;
     private CancellationToken _cancellationToken;
-    // private ModuleClient? _moduleClient;
     private ModuleConfig _activeConfig = new();
     private FileSystemWatcher? _fileWatcher;
     private readonly IModuleClientWrapper _moduleClient;
@@ -44,6 +44,8 @@ internal class ModuleBackgroundService : BackgroundService
         // Register callbacks
         await _moduleClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertiesUpdate, _moduleClient, _cancellationToken);
         // Need any message handlers?
+
+        // Need a watchdog of some sort... if we throw an ex, it doesn't seem to kill the console app, nor log anything
     }
 
     private async Task OnDesiredPropertiesUpdate(TwinCollection desiredProperties, object userContext)
@@ -95,6 +97,7 @@ internal class ModuleBackgroundService : BackgroundService
         _fileWatcher = new FileSystemWatcher(_activeConfig.WatchPath);        
 
         _fileWatcher.Created += FileCreatedEvent;
+        _fileWatcher.Changed += FileCreatedEvent;
         _fileWatcher.EnableRaisingEvents = true;
 
         await Task.CompletedTask;
@@ -103,13 +106,13 @@ internal class ModuleBackgroundService : BackgroundService
     
     private void FileCreatedEvent(object sender, FileSystemEventArgs e)
     {
-        _logger.LogDebug("File {FileName} Created at {FullPath}", e.Name, e.FullPath);
+        _logger.LogDebug("File '{FileName}' Created at {FullPath}", e.Name, e.FullPath);
         if(_activeConfig.SendMessage)
         {
             var message = new CatCam.Common.Messages.ClipCreated
             {
                 DateTime = DateTime.UtcNow,
-                FileName = e.Name,
+                FileName = e.Name ?? string.Empty,
                 FullPath = e.FullPath
             };
 
@@ -118,10 +121,8 @@ internal class ModuleBackgroundService : BackgroundService
 
         if(_activeConfig.AlwaysUpload)
         {
-            _logger.LogDebug("Uploading file {Name}...");
-
+            _logger.LogDebug("Uploading file '{Name}'...", e.Name);
         }
-        throw new NotImplementedException();
     }
 
     private async Task SendIOTMessage(object message, string channel = "upstream")
