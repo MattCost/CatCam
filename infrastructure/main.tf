@@ -102,7 +102,7 @@ resource "azurerm_iothub" "this" {
     name     = "F1"
     capacity = "1"
   }
-
+  
   # endpoint {
   #   type                       = "AzureIotHub.StorageContainer"
   #   connection_string          = azurerm_storage_account.example.primary_blob_connection_string
@@ -157,6 +157,12 @@ resource "azurerm_iothub" "this" {
   }
 }
 
+resource "azurerm_iothub_file_upload" "this" {
+  iothub_id         = azurerm_iothub.this.id
+  connection_string = azurerm_storage_account.this.primary_blob_connection_string
+  container_name    = "uploads"
+
+  }
 # App Hosting
 # Service plan for api and webapp
 
