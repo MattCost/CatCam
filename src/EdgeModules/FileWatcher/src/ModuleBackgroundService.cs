@@ -9,20 +9,25 @@ internal class ModuleBackgroundService : BackgroundService
 {
     private readonly ILogger<ModuleBackgroundService> _logger;
     private CancellationToken _cancellationToken;
-    private ModuleClient? _moduleClient;
+    // private ModuleClient? _moduleClient;
     private ModuleConfig _activeConfig = new();
     private FileSystemWatcher? _fileWatcher;
+    private readonly IModuleClientWrapper _moduleClient;
 
-    public ModuleBackgroundService(ILogger<ModuleBackgroundService> logger) => _logger = logger;
+    public ModuleBackgroundService(ILogger<ModuleBackgroundService> logger, IModuleClientWrapper moduleClient)
+    {
+        _logger = logger;
+        _moduleClient = moduleClient;
+    }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _cancellationToken = cancellationToken;
-        MqttTransportSettings mqttSetting = new(TransportType.Mqtt_Tcp_Only);
-        ITransportSettings[] settings = { mqttSetting };
+        // MqttTransportSettings mqttSetting = new(TransportType.Mqtt_Tcp_Only);
+        // ITransportSettings[] settings = { mqttSetting };
 
-        // Open a connection to the Edge runtime
-        _moduleClient = await ModuleClient.CreateFromEnvironmentAsync(settings);
+        // // Open a connection to the Edge runtime
+        // _moduleClient = await ModuleClient.CreateFromEnvironmentAsync(settings);
 
         // From the sample, see what it does
         // Reconnect is not implented because we'll let docker restart the process when the connection is lost
@@ -59,7 +64,7 @@ internal class ModuleBackgroundService : BackgroundService
             return;
         }
 
-        _logger.LogWarning("Stopping Processing");
+        _logger.LogTrace("Stopping Processing");
         await StopProcessingAsync(_cancellationToken);
 
         _activeConfig = newConfig;
@@ -70,7 +75,7 @@ internal class ModuleBackgroundService : BackgroundService
 
     private async Task StopProcessingAsync(CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Entering Stop Processing...");
+        _logger.LogTrace("Entering Stop Processing...");
         if(_fileWatcher != null)
         {
             _fileWatcher.EnableRaisingEvents = false;
@@ -78,23 +83,22 @@ internal class ModuleBackgroundService : BackgroundService
             _fileWatcher.Dispose();
         }
         await Task.CompletedTask;
-        _logger.LogDebug("Stop Processing complete");
+        _logger.LogTrace("Stop Processing complete");
     }
 
     private async Task StartProcessingAsync(CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Entering Start Processing...");
+        _logger.LogTrace("Entering Start Processing...");
 
-        _fileWatcher = new FileSystemWatcher(_activeConfig.WatchPath)
-        {
-            NotifyFilter = NotifyFilters.LastWrite,
-        };
+        _logger.LogDebug("Watching files in {Path}", _activeConfig.WatchPath);
+
+        _fileWatcher = new FileSystemWatcher(_activeConfig.WatchPath);        
 
         _fileWatcher.Created += FileCreatedEvent;
         _fileWatcher.EnableRaisingEvents = true;
 
         await Task.CompletedTask;
-        _logger.LogDebug("Start Processing complete");
+        _logger.LogTrace("Start Processing complete");
     }
     
     private void FileCreatedEvent(object sender, FileSystemEventArgs e)
@@ -105,7 +109,8 @@ internal class ModuleBackgroundService : BackgroundService
             var message = new CatCam.Common.Messages.ClipCreated
             {
                 DateTime = DateTime.UtcNow,
-                FileName = e.FullPath
+                FileName = e.Name,
+                FullPath = e.FullPath
             };
 
             SendIOTMessage(message).Wait(_cancellationToken);
@@ -113,8 +118,7 @@ internal class ModuleBackgroundService : BackgroundService
 
         if(_activeConfig.AlwaysUpload)
         {
-            _logger.LogDebug("File Upload Placeholder");
-            //upload file
+            _logger.LogDebug("Uploading file {Name}...");
 
         }
         throw new NotImplementedException();
