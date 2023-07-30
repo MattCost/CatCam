@@ -10,8 +10,13 @@ internal class Program
             .ConfigureServices(services => 
             {
                 services.AddHostedService<ModuleBackgroundService>();
+                #if DEBUG
                 services.AddSingleton<IModuleClientWrapper, DebugModuleClientWrapper>();
-                // services.AddSingleton<IModuleClientWrapper, ModuleClientWrapper>();
+                services.AddSingleton<IFileUploadService, DebugUploadService>();
+                #else
+                services.AddSingleton<IModuleClientWrapper, ModuleClientWrapper>();
+                services.AddSingleton<IFileUploadService, BlobStorageUploadService>();
+                #endif
             })
             .Build();
 
