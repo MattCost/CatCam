@@ -6,6 +6,7 @@ for (( i=0 ; i<$count; i++))
 do
     # echo creating file iteration $i
     sh -c ./create-test-file.sh
+    sleep 3
 done
 
 echo Cleaning up files
