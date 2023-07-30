@@ -12,7 +12,7 @@ public class DebugModuleClientWrapper : IModuleClientWrapper
     }
     public Task CloseAsync(CancellationToken cancellationToken)
     {
-        return Task.Run( () => _logger.LogDebug("Closing Client") , cancellationToken);
+        return Task.Run(() => _logger.LogDebug("Closing Client"), cancellationToken);
     }
 
     public Task<Twin> GetTwinAsync(CancellationToken cancellationToken)
@@ -20,6 +20,7 @@ public class DebugModuleClientWrapper : IModuleClientWrapper
         var debugConfig = new ModuleConfig
         {
             WatchPath = "/home/matt/data/whatever",
+            Filters = new List<string> { "*.txt" },
             SendMessage = true,
             AlwaysUpload = true
         };
@@ -34,13 +35,13 @@ public class DebugModuleClientWrapper : IModuleClientWrapper
 
     public Task OpenAsync(CancellationToken cancellationToken)
     {
-        return Task.Run( () => _logger.LogDebug("Opening Client") , cancellationToken);
+        return Task.Run(() => _logger.LogDebug("Opening Client"), cancellationToken);
     }
 
     public Task SendEventAsync(string outputName, Message message, CancellationToken cancellationToken)
     {
-        
-        return Task.Run( () => _logger.LogDebug("Module Client sending msg to {Output}", outputName) , cancellationToken);
+
+        return Task.Run(() => _logger.LogDebug("Module Client sending msg to {Output}", outputName), cancellationToken);
     }
 
     public void SetConnectionStatusChangesHandler(ConnectionStatusChangesHandler statusChangesHandler)
@@ -50,6 +51,6 @@ public class DebugModuleClientWrapper : IModuleClientWrapper
 
     public Task SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback callback, object userContext, CancellationToken cancellationToken)
     {
-        return Task.Run( () => _logger.LogDebug("Setting Desired Property Update Callback handler") , cancellationToken);
+        return Task.Run(() => _logger.LogDebug("Setting Desired Property Update Callback handler"), cancellationToken);
     }
 }
