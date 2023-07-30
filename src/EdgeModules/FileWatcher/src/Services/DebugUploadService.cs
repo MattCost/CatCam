@@ -18,6 +18,8 @@ public class DebugUploadService : IFileUploadService
                 using(FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
                     _logger.LogTrace("Uploading file {File}", filename);
+                    await Task.Delay(500);
+                    _logger.LogTrace("Upload complete");
                 }
                 return;
             }

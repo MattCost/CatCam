@@ -17,37 +17,44 @@ public class BlobStorageUploadService : IFileUploadService
 
     public async Task UploadFile(string filename, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Entering Upload File {file}. Waiting for exclusive access to file", filename);
-        // TODO add some long running timeout? Videos could go on a while.
-        while(true)
+        _logger.LogDebug("Entering Upload File {file}. Waiting for file write to be complete", filename);
+        
+        try
         {
-            try
+            using FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
+            double delta = 1;
+            do
             {
-                using FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
-                await DoTheUpload(fileStream, cancellationToken);
-                return;
+                var start = fileStream.Length;
+                await Task.Delay(2000);
+                delta = fileStream.Length - start;
             }
-            catch(IOException)
-            {
-                await Task.Delay(100,cancellationToken);
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError(ex, "Exception while trying to open file {filename}", filename);
-                return;
-            }
+            while(delta > 0);
+        
+            await DoTheUpload(fileStream, cancellationToken);
+            return;
+        }
+        // catch(IOException)
+        // {
+        //     await Task.Delay(100,cancellationToken);
+        // }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex, "Exception while trying to open file {filename}", filename);
+            return;
         } 
     }
     
     private async Task DoTheUpload(FileStream fileStreamSource, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Uploading file {File}", fileStreamSource.Name);
+        var filename = Path.GetFileName(fileStreamSource.Name);
+        _logger.LogDebug("Uploading file {File}", filename);
         
         try
         {
             var fileUploadSasUriRequest = new FileUploadSasUriRequest
             {
-                BlobName = fileStreamSource.Name
+                BlobName = filename
             };
 
             _logger.LogTrace("Sending Sas uri request");
@@ -60,6 +67,7 @@ public class BlobStorageUploadService : IFileUploadService
             // using var fileStreamSource = new FileStream(filename, FileMode.Open);
             var blockBlobClient = new BlockBlobClient(uploadUri);
             await blockBlobClient.UploadAsync(fileStreamSource, new BlobUploadOptions(), cancellationToken);
+            _logger.LogTrace("Upload Complete");
         }
         catch (Exception ex)
         {
