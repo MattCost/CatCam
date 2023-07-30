@@ -13,21 +13,18 @@ internal class ModuleBackgroundService : BackgroundService
     private ModuleConfig _activeConfig = new();
     private FileSystemWatcher? _fileWatcher;
     private readonly IModuleClientWrapper _moduleClient;
+    private readonly IFileUploadService _fileUploadService;
 
-    public ModuleBackgroundService(ILogger<ModuleBackgroundService> logger, IModuleClientWrapper moduleClient)
+    public ModuleBackgroundService(ILogger<ModuleBackgroundService> logger, IModuleClientWrapper moduleClient, IFileUploadService fileUploadService)
     {
         _logger = logger;
         _moduleClient = moduleClient;
+        _fileUploadService = fileUploadService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         _cancellationToken = cancellationToken;
-        // MqttTransportSettings mqttSetting = new(TransportType.Mqtt_Tcp_Only);
-        // ITransportSettings[] settings = { mqttSetting };
-
-        // // Open a connection to the Edge runtime
-        // _moduleClient = await ModuleClient.CreateFromEnvironmentAsync(settings);
 
         // From the sample, see what it does
         // Reconnect is not implented because we'll let docker restart the process when the connection is lost
@@ -97,7 +94,7 @@ internal class ModuleBackgroundService : BackgroundService
         _fileWatcher = new FileSystemWatcher(_activeConfig.WatchPath);        
 
         _fileWatcher.Created += FileCreatedEvent;
-        _fileWatcher.Changed += FileCreatedEvent;
+        // _fileWatcher.Changed += FileChangedEvent;
         _fileWatcher.EnableRaisingEvents = true;
 
         await Task.CompletedTask;
@@ -107,6 +104,17 @@ internal class ModuleBackgroundService : BackgroundService
     private void FileCreatedEvent(object sender, FileSystemEventArgs e)
     {
         _logger.LogDebug("File '{FileName}' Created at {FullPath}", e.Name, e.FullPath);
+        DealWithEvent(sender, e);
+    }
+
+    private void FileChangedEvent(object sender, FileSystemEventArgs e)
+    {
+        _logger.LogDebug("File '{FileName}' Changed at {FullPath}", e.Name, e.FullPath);
+        DealWithEvent(sender, e);
+    }
+
+    private void DealWithEvent(object sender, FileSystemEventArgs e)
+    {
         if(_activeConfig.SendMessage)
         {
             var message = new CatCam.Common.Messages.ClipCreated
@@ -121,7 +129,8 @@ internal class ModuleBackgroundService : BackgroundService
 
         if(_activeConfig.AlwaysUpload)
         {
-            _logger.LogDebug("Uploading file '{Name}'...", e.Name);
+            _logger.LogDebug("Calling File Upload Service for '{Name}'...", e.Name);
+            _fileUploadService.UploadFile(e.FullPath, _cancellationToken);
         }
     }
 
