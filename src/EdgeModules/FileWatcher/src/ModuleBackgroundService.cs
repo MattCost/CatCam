@@ -78,7 +78,7 @@ internal class ModuleBackgroundService : BackgroundService
         if(_fileWatcher != null)
         {
             _fileWatcher.EnableRaisingEvents = false;
-            _fileWatcher.Created -= FileCreatedEvent;
+            _fileWatcher.Renamed -= FileRenamedEvent;
             _fileWatcher.Dispose();
         }
         await Task.CompletedTask;
@@ -93,8 +93,7 @@ internal class ModuleBackgroundService : BackgroundService
 
         _fileWatcher = new FileSystemWatcher(_activeConfig.WatchPath);        
 
-        _fileWatcher.Created += FileCreatedEvent;
-        // _fileWatcher.Changed += FileChangedEvent;
+        _fileWatcher.Renamed += FileRenamedEvent;
         _fileWatcher.EnableRaisingEvents = true;
 
         await Task.CompletedTask;
@@ -107,9 +106,9 @@ internal class ModuleBackgroundService : BackgroundService
         DealWithEvent(sender, e);
     }
 
-    private void FileChangedEvent(object sender, FileSystemEventArgs e)
+    private void FileRenamedEvent(object sender, FileSystemEventArgs e)
     {
-        _logger.LogDebug("File '{FileName}' Changed at {FullPath}", e.Name, e.FullPath);
+        _logger.LogDebug("File '{FileName}' Renamed at {FullPath}", e.Name, e.FullPath);
         DealWithEvent(sender, e);
     }
 
