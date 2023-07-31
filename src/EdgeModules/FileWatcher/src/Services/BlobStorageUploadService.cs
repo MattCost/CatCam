@@ -18,7 +18,15 @@ public class BlobStorageUploadService : IFileUploadService
     public async Task UploadFile(string filename, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Entering Upload File {file}. Waiting for file write to be complete", filename);
-        
+        var filenameParts = filename.Split('/');
+        string blobName = filenameParts[^1];
+        _logger.LogDebug("Parts Count {Count}. Parts {Parts}", filenameParts.Length, filenameParts);
+        if(filenameParts.Length >=2)
+        {
+            blobName = filenameParts[^2] + "/" + filenameParts[^1];
+        }
+        _logger.LogDebug("Blob Name {BlobName}", blobName);
+
         try
         {
             using FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
@@ -26,12 +34,12 @@ public class BlobStorageUploadService : IFileUploadService
             do
             {
                 var start = fileStream.Length;
-                await Task.Delay(2000);
+                await Task.Delay(1000);
                 delta = fileStream.Length - start;
             }
             while(delta > 0);
         
-            await DoTheUpload(fileStream, cancellationToken);
+            await DoTheUpload(fileStream, blobName, cancellationToken);
             return;
         }
         // catch(IOException)
@@ -45,7 +53,7 @@ public class BlobStorageUploadService : IFileUploadService
         } 
     }
     
-    private async Task DoTheUpload(FileStream fileStreamSource, CancellationToken cancellationToken)
+    private async Task DoTheUpload(FileStream fileStreamSource, string blobName, CancellationToken cancellationToken)
     {
         var filename = Path.GetFileName(fileStreamSource.Name);
         _logger.LogDebug("Uploading file {File}", filename);
@@ -54,7 +62,7 @@ public class BlobStorageUploadService : IFileUploadService
         {
             var fileUploadSasUriRequest = new FileUploadSasUriRequest
             {
-                BlobName = filename
+                BlobName = blobName
             };
 
             _logger.LogTrace("Sending Sas uri request");

@@ -93,7 +93,11 @@ internal class ModuleBackgroundService : BackgroundService
 
         _fileWatcher = new FileSystemWatcher(_activeConfig.WatchPath);        
 
-        _fileWatcher.Renamed += FileRenamedEvent;
+        // Was recording with *.tmp, then doing a rename, but Gstream didn't like the file extension
+        // _fileWatcher.Renamed += FileRenamedEvent;
+        // Writing video to temp folder, then copying into watched dir
+        _fileWatcher.Created += FileCreatedEvent;
+        _fileWatcher.IncludeSubdirectories = true;
         _fileWatcher.EnableRaisingEvents = true;
 
         await Task.CompletedTask;

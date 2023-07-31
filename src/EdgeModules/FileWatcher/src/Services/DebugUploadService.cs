@@ -10,6 +10,17 @@ public class DebugUploadService : IFileUploadService
     public async Task UploadFile(string filename, CancellationToken cancellationToken)
     {
         _logger.LogTrace("Entering Upload File {file}. Waiting for exclusive access to file", filename);
+        _logger.LogDebug("Entering Upload File {file}. Waiting for file write to be complete", filename);
+        var filenameParts = filename.Split('/');
+        string blobName = filenameParts[filenameParts.Length - 1];
+        _logger.LogDebug("Parts Count {Count}. Parts {Parts}", filenameParts.Length, filenameParts);
+        if(filenameParts.Length >=2)
+        {
+            blobName = filenameParts[filenameParts.Length- 2] + "/" + filenameParts[filenameParts.Length-1];
+        }
+        _logger.LogDebug("Blob Name {BlobName}", blobName);
+
+
         bool exclusiveAccess = false;
         do
         {
