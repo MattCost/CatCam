@@ -1,8 +1,8 @@
-patch=$(cat patch.txt)
+cd ..
+patch=$(cat src/EdgeModules/FileWatcher/patch.txt)
 ((patch++))
 echo "patch $patch"
-echo $patch > patch.txt
-cd ..
+echo $patch > src/EdgeModules/FileWatcher/patch.txt
 TOKEN=$(az acr login --name catcamacr --expose-token --output tsv --query accessToken)
 docker build --tag catcamacr.azurecr.io/file-watcher:0.0.$patch-linux-amd64 -f EdgeModules/FileWatcher/Dockerfile.amd64 src
 docker build --tag catcamacr.azurecr.io/file-watcher:0.0.$patch-linux-arm32v7 -f EdgeModules/FileWatcher/Dockerfile.arm32v7 src
