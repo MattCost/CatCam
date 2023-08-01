@@ -15,6 +15,7 @@ using System.Net;
 using System;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Threading.Tasks;
+using CatCam.API.Services;
 
 namespace CatCam.API
 {
@@ -112,6 +113,10 @@ namespace CatCam.API
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+
+            services.AddSingleton<ISecretsManager, EnvVarSecretManager>();
+            services.AddSingleton<IClipBrowser, ClipBrowserAzureBlobStorage>();
+            services.AddHttpClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
