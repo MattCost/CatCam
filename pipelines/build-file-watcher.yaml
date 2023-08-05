@@ -7,39 +7,65 @@ trigger:
       - src/EdgeModules/FileWatcher
       - pipelines/build-file-watcher.yaml
 
+variables:
+ ${{ if eq( variables['Build.SourceBranchName'], 'main') }}:
+  major: 0
+  minor: 0
+  patch: $[counter(format('{0}.{1}', variables['major'], variables['minor']), 1)]
+  version: '$(major).$(minor).$(patch)'
+ ${{ else }}
+  patch: $[counter(variables['Build.SourceBranchName'],1)
+  version: $(Build.SourceBranchName)-$(patch)
+   
 steps:
-- task: Docker@2
-  displayName: Docker Build of File Watcher module amd64
-  inputs:
+- template: build-edge-module.yaml
+  parameters:
     containerRegistry: 'catcamacr-dev'
     repository: 'file-watcher'
-    command: 'build'
-    Dockerfile: 'src/EdgeModules/FileWatcher/Dockerfile.amd64'
-    buildContext: 'src'
-    tags: 'amd64-latest'
+    dockerFile: 'src/EdgeModules/FileWatcher/Dockerfile.amd64'
+    context: 'src'
+    tag: '$(version)-amd64'
 
-- task: Docker@2
-  displayName: Docker Push of File Watcher module
-  inputs:
+- template: build-edge-module.yaml
+  parameters:
     containerRegistry: 'catcamacr-dev'
     repository: 'file-watcher'
-    command: 'push'
-    tags: 'amd64-latest'
+    dockerFile: 'src/EdgeModules/FileWatcher/Dockerfile.arm32v7'
+    context: 'src'
+    tag: '$(version)-arm32v7'
 
-- task: Docker@2
-  displayName: Docker Build of File Watcher module arm32
-  inputs:
-    containerRegistry: 'catcamacr-dev'
-    repository: 'file-watcher'
-    command: 'build'
-    Dockerfile: 'src/EdgeModules/FileWatcher/Dockerfile.arm32v7'
-    buildContext: 'src'
-    tags: 'arm32-latest'
+# - task: Docker@2
+#   displayName: Docker Build of File Watcher module amd64
+#   inputs:
+#     containerRegistry: 'catcamacr-dev'
+#     repository: 'file-watcher'
+#     command: 'build'
+#     Dockerfile: 'src/EdgeModules/FileWatcher/Dockerfile.amd64'
+#     buildContext: 'src'
+#     tags: 'amd64-latest'
 
-- task: Docker@2
-  displayName: Docker Push of File Watcher module
-  inputs:
-    containerRegistry: 'catcamacr-dev'
-    repository: 'file-watcher'
-    command: 'push'
-    tags: 'arm32-latest'    
+# - task: Docker@2
+#   displayName: Docker Push of File Watcher module
+#   inputs:
+#     containerRegistry: 'catcamacr-dev'
+#     repository: 'file-watcher'
+#     command: 'push'
+#     tags: 'amd64-latest'
+
+# - task: Docker@2
+#   displayName: Docker Build of File Watcher module arm32
+#   inputs:
+#     containerRegistry: 'catcamacr-dev'
+#     repository: 'file-watcher'
+#     command: 'build'
+#     Dockerfile: 'src/EdgeModules/FileWatcher/Dockerfile.arm32v7'
+#     buildContext: 'src'
+#     tags: 'arm32-latest'
+
+# - task: Docker@2
+#   displayName: Docker Push of File Watcher module
+#   inputs:
+#     containerRegistry: 'catcamacr-dev'
+#     repository: 'file-watcher'
+#     command: 'push'
+#     tags: 'arm32-latest'    
