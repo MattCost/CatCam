@@ -12,7 +12,7 @@ parameters:
 
 steps:
 - task: Docker@2
-  displayName: Docker Build of ${{ parameters.containerRegistry }} : $${{ parameters.tag }}
+  displayName: Docker Build
   inputs:
     containerRegistry: ${{ parameters.containerRegistry }}
     repository: ${{ parameters.repository }}
@@ -22,7 +22,7 @@ steps:
     tags: ${{ parameters.tag }}
 
 - task: Docker@2
-  displayName: Docker Push of ${{ parameters.containerRegistry }} : $${{ parameters.tag }}
+  displayName: Docker Push
   inputs:
     containerRegistry: ${{ parameters.containerRegistry }}
     repository: ${{ parameters.repository }}
