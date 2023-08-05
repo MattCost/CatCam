@@ -9,14 +9,14 @@ trigger:
 
 variables:
  ${{ if eq( variables['Build.SourceBranchName'], 'main') }}:
-  major: 0
-  minor: 0
-  patch: $[counter(format('{0}.{1}', variables['major'], variables['minor']), 1)]
+  major: '0'
+  minor: '0'
+  patch: $[counter(format('{0}.{1}', variables['major'], variables['minor'] ), 1) ]
   version: '$(major).$(minor).$(patch)'
  ${{ else }}:
   patch: $[counter(variables['Build.SourceBranchName'],1)
   version: $(Build.SourceBranchName)-$(patch)
-   
+
 steps:
 - template: build-edge-module.yaml
   parameters:
@@ -33,6 +33,7 @@ steps:
     dockerFile: 'src/EdgeModules/FileWatcher/Dockerfile.arm32v7'
     context: 'src'
     tag: '$(version)-arm32v7'
+
 
 # - task: Docker@2
 #   displayName: Docker Build of File Watcher module amd64
