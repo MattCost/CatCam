@@ -15,7 +15,7 @@ steps:
     repository: 'file-watcher'
     command: 'build'
     Dockerfile: 'src/EdgeModules/FileWatcher/Dockerfile.amd64'
-    buildContext: 'src/EdgeModules/FileWatcher'
+    buildContext: 'src'
     tags: 'amd64-latest'
 
 - task: Docker@2
@@ -33,7 +33,7 @@ steps:
     repository: 'file-watcher'
     command: 'build'
     Dockerfile: 'src/EdgeModules/FileWatcher/Dockerfile.arm32v7'
-    buildContext: 'src/EdgeModules/FileWatcher'
+    buildContext: 'src'
     tags: 'arm32-latest'
 
 - task: Docker@2
