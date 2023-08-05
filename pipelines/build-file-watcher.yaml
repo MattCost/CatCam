@@ -13,7 +13,7 @@ variables:
   minor: 0
   patch: $[counter(format('{0}.{1}', variables['major'], variables['minor']), 1)]
   version: '$(major).$(minor).$(patch)'
- ${{ else }}
+ ${{ else }}:
   patch: $[counter(variables['Build.SourceBranchName'],1)
   version: $(Build.SourceBranchName)-$(patch)
    
