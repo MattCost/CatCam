@@ -4,41 +4,42 @@ pool:
 trigger:
   paths:
     include:
-      - src/EdgeModules/VideoCapture
+      - src/EdgeModules/FileWatcher
+      - pipelines/build-file-watcher.yaml
 
 steps:
 - task: Docker@2
-  displayName: Docker Build of Video Capture module amd64
+  displayName: Docker Build of File Watcher module amd64
   inputs:
     containerRegistry: 'catcamacr-dev'
-    repository: 'video-capture'
+    repository: 'file-watcher'
     command: 'build'
-    Dockerfile: 'src/EdgeModules/VideCapture/Dockerfile.amd64'
-    buildContext: 'src/EdgeModules/VideCapture'
+    Dockerfile: 'src/EdgeModules/FileWatcher/Dockerfile.amd64'
+    buildContext: 'src/EdgeModules/FileWatcher'
     tags: 'amd64-latest'
 
 - task: Docker@2
-  displayName: Docker Push of Vide Capture module
+  displayName: Docker Push of File Watcher module
   inputs:
     containerRegistry: 'catcamacr-dev'
-    repository: 'video-capture'
+    repository: 'file-watcher'
     command: 'push'
     tags: 'amd64-latest'
 
 - task: Docker@2
-  displayName: Docker Build of Video Capture module arm32
+  displayName: Docker Build of File Watcher module arm32
   inputs:
     containerRegistry: 'catcamacr-dev'
-    repository: 'video-capture'
+    repository: 'file-watcher'
     command: 'build'
-    Dockerfile: 'src/EdgeModules/VideCapture/Dockerfile.arm32v7'
-    buildContext: 'src/EdgeModules/VideCapture'
+    Dockerfile: 'src/EdgeModules/FileWatcher/Dockerfile.arm32v7'
+    buildContext: 'src/EdgeModules/FileWatcher'
     tags: 'arm32-latest'
 
 - task: Docker@2
-  displayName: Docker Push of Vide Capture module
+  displayName: Docker Push of File Watcher module
   inputs:
     containerRegistry: 'catcamacr-dev'
-    repository: 'video-capture'
+    repository: 'file-watcher'
     command: 'push'
     tags: 'arm32-latest'    
