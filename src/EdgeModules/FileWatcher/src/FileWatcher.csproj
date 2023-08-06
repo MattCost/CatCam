@@ -16,6 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Common\Common.csproj" />
+    <ProjectReference Include="..\..\..\EdgeCommon\EdgeCommon.csproj" />
   </ItemGroup>
 </Project>
