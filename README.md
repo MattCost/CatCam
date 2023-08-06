@@ -53,7 +53,7 @@ azure ad / app reg
 
 
 ## TODO
-- auth handlers (before putting into api service)
+- app roles and auth handlers needed? not for prototype
 - iothub client wrapper
     - list devices
     - generate deployment

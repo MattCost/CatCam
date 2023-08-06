@@ -154,14 +154,14 @@ namespace CatCam.API
         {
             ConfigureCommonServices(services);
             services.AddSingleton<ISecretsManager, UserSecretsSecretManager>();
-            services.AddSingleton<IAuthorizationHandler, AlwaysAllowAuthHandler>();
+            // services.AddSingleton<IAuthorizationHandler, AlwaysAllowAuthHandler>();
         }
 
         public void ConfigureProductionServices(IServiceCollection services)
         {
             ConfigureCommonServices(services);
             services.AddSingleton<ISecretsManager, EnvVarSecretManager>();
-            // todo auth handlers
+            // Auth handlers after app roles are defined and worked out
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
