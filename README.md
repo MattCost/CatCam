@@ -53,11 +53,16 @@ azure ad / app reg
 
 
 ## TODO
-- can we automate app service secret/env var configuration from terraform?
+- auth handlers (before putting into api service)
+- iothub client wrapper
+    - list devices
+    - generate deployment
+    - send deployment
 - outline apis needed
+- can we automate app service secret/env var configuration from terraform?
 - create tf "bootstamp" script to create SP + storage act.
 - setup tf to use remote state in said storage act.
-
+- define site/location/camera structure
 
 ## Secrets
 dotnet user-secrets init
