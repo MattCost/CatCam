@@ -45,7 +45,7 @@ public class LocationsController : ControllerBase
         {
             return Ok(await _entityProvider.GetLocationModelAsync(id));
         }
-        catch(EntityNotFound)
+        catch(EntityNotFoundException)
         {
             return NotFound();
         }

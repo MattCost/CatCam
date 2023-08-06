@@ -50,7 +50,7 @@ public class EntityProviderTableStorage : IEntityProvider
         {
             var parentSite = await GetSiteModelAsync(parentSiteId);
         }
-        catch (EntityNotFound)
+        catch (EntityNotFoundException)
         {
             throw new Exception("Invalid Parent Site Id");
         }
@@ -101,7 +101,7 @@ public class EntityProviderTableStorage : IEntityProvider
         catch (Azure.RequestFailedException ex) when (ex.Status == 404)
         {
             _logger.LogWarning("Partition:Row {Partition}:{Row} not found in Table {Table}", partitionKey, rowKey, TableName);
-            throw new EntityNotFound($"{TableName}:{partitionKey}:{rowKey} not found");
+            throw new EntityNotFoundException($"{TableName}:{partitionKey}:{rowKey} not found");
         }
         catch (Azure.RequestFailedException ex) when (ex.Status == 400)
         {
@@ -128,7 +128,7 @@ public class EntityProviderTableStorage : IEntityProvider
         catch (Azure.RequestFailedException ex) when (ex.Status == 404)
         {
             _logger.LogWarning("Table {TableName} not found", TableName);
-            throw new EntityNotFound($"{TableName} not found");
+            throw new EntityNotFoundException($"{TableName} not found");
         }
 
         catch (Azure.RequestFailedException ex) when (ex.Status == 400)
@@ -182,7 +182,7 @@ public class EntityProviderTableStorage : IEntityProvider
         catch (Azure.RequestFailedException ex) when (ex.Status == 404)
         {
             _logger.LogWarning("Table store returned 404");
-            throw new EntityNotFound("Table not found?");
+            throw new EntityNotFoundException("Table not found?");
         }
         catch (Azure.RequestFailedException ex) when (ex.Status == 400)
         {
@@ -206,7 +206,7 @@ public class EntityProviderTableStorage : IEntityProvider
         catch (Azure.RequestFailedException ex) when (ex.Status == 404)
         {
             _logger.LogWarning("Partition:Row {Partition}:{Row} not found in Table {Table}", partitionKey, rowKey, TableName);
-            throw new EntityNotFound($"{TableName}:{partitionKey}:{rowKey} not found");
+            throw new EntityNotFoundException($"{TableName}:{partitionKey}:{rowKey} not found");
         }
         catch (Azure.RequestFailedException ex) when (ex.Status == 400)
         {
@@ -235,7 +235,7 @@ public class EntityProviderTableStorage : IEntityProvider
         catch (Azure.RequestFailedException ex) when (ex.Status == 404)
         {
             _logger.LogWarning("Table {TableName} not found", TableName);
-            throw new EntityNotFound($"{TableName} not found");
+            throw new EntityNotFoundException($"{TableName} not found");
         }
 
         catch (Azure.RequestFailedException ex) when (ex.Status == 400)

@@ -45,7 +45,7 @@ public class SitesController : ControllerBase
         {
             return Ok(await _entityProvider.GetSiteModelAsync(id));
         }
-        catch(EntityNotFound)
+        catch(EntityNotFoundException)
         {
             return NotFound();
         }

@@ -1,21 +1,10 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
-
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Web;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Logging;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Linq;
-using System.Net;
-using System;
-using Microsoft.AspNetCore.Mvc.Filters;
-using System.Threading.Tasks;
-using CatCam.API.Services;
+using CatCam.Common.Services.Secrets;
+using CatCam.Common.Services.Storage;
+using CatCam.Common.Models;
+using CatCam.Common.Services.EntityProvider;
 
 namespace CatCam.API
 {
@@ -114,8 +103,9 @@ namespace CatCam.API
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
-            services.AddSingleton<ISecretsManager, EnvVarSecretManager>();
+            services.AddSingleton<ISecretsManager, UserSecretsSecretManager>();
             services.AddSingleton<IClipBrowser, ClipBrowserAzureBlobStorage>();
+            services.AddSingleton<IEntityProvider, EntityProviderTableStorage>();
             services.AddHttpClient();
         }
 
