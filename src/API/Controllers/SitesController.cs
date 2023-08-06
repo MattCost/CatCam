@@ -9,8 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CatCap.API.Controllers;
 
-// [Authorize]
-[AllowAnonymous]
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class SitesController : ControllerBase
@@ -18,20 +17,20 @@ public class SitesController : ControllerBase
 
     private readonly ILogger<SitesController> _logger;
     private readonly IEntityProvider _entityProvider;
-    private readonly IAuthorizationService _authorizationService;
+    // private readonly IAuthorizationService _authorizationService;
 
-    public SitesController(ILogger<SitesController> logger, IEntityProvider entityProvider, IAuthorizationService authorizationService)
+    public SitesController(ILogger<SitesController> logger, IEntityProvider entityProvider) //, IAuthorizationService authorizationService)
     {
         _logger = logger;
         _entityProvider = entityProvider;
-        _authorizationService = authorizationService;
+        // _authorizationService = authorizationService;
     }
 
     [HttpGet("all")]
     public async Task<ActionResult<IEnumerable<SiteModel>>> Get()
     {
-        var authResult = await _authorizationService.AuthorizeAsync(User, null, SiteOperations.ListSites);
-        if(!authResult.Succeeded) return Forbid();
+        // var authResult = await _authorizationService.AuthorizeAsync(User, null, SiteOperations.ListSites);
+        // if(!authResult.Succeeded) return Forbid();
         
         try
         {

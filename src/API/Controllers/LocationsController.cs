@@ -8,8 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CatCap.API.Controllers;
 
-// [Authorize]
-[AllowAnonymous]
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class LocationsController : ControllerBase

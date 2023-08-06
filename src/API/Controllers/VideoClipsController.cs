@@ -5,8 +5,7 @@ using CatCam.Common.Services.Storage;
 
 namespace CatCap.API.Controllers;
 
-[AllowAnonymous]
-// [Authorize]
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class VideoClipsController : ControllerBase
