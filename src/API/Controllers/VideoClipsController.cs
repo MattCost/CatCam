@@ -1,15 +1,12 @@
-using System.Net;
-using System.Net.Sockets;
-using CatCam.API.Services;
-using CatCam.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
-using System;
+using CatCam.Common.Services.Storage;
 
 namespace CatCap.API.Controllers;
 
-[Authorize]
+[AllowAnonymous]
+// [Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class VideoClipsController : ControllerBase
