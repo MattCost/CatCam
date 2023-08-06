@@ -7,6 +7,8 @@ using CatCam.Common.Models;
 using CatCam.Common.Services.EntityProvider;
 using Microsoft.AspNetCore.Authorization;
 using CatCam.Common.Services.Authorization;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace CatCam.API
 {
@@ -30,6 +32,15 @@ namespace CatCam.API
 
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+
+                options.AddPolicy("BadgeEntry", policy =>
+                        policy.RequireAssertion(context => context.User.HasClaim(c =>
+                            (c.Type == "BadgeId" || c.Type == "TemporaryBadgeId")
+                            && c.Issuer == "https://microsoftsecurity")));
+            });
 
             // or if you want to explicitly set the values
             // services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -103,7 +114,36 @@ namespace CatCam.API
             services.AddControllers();
 
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+
+            var scheme = new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.OAuth2,
+                In = ParameterLocation.Header,
+                Name = "Authorization?",
+                Reference = new OpenApiReference
+                {
+                    Id = JwtBearerDefaults.AuthenticationScheme,
+                    Type = ReferenceType.SecurityScheme
+                },
+
+                Flows = new OpenApiOAuthFlows
+                {
+                    AuthorizationCode = new OpenApiOAuthFlow
+                    {
+                        AuthorizationUrl = new Uri("https://login.microsoftonline.com/5cf954a5-057f-4af4-94da-71b8bfe8e39b/oauth2/v2.0/authorize"),
+                        TokenUrl = new Uri("https://login.microsoftonline.com/5cf954a5-057f-4af4-94da-71b8bfe8e39b/oauth2/v2.0/token"),
+                        Scopes = new Dictionary<string, string>
+                        {
+                            { "api://catcam-api/api.access", "access web api as a user"}
+                        }
+                    }
+                }
+            };
+
+            services.AddSwaggerGen(config =>
+            {
+                config.AddSecurityDefinition(scheme.Reference.Id, scheme);
+            });
             services.AddHttpClient();
 
             services.AddSingleton<IEntityProvider, EntityProviderTableStorage>();
@@ -114,7 +154,7 @@ namespace CatCam.API
         {
             ConfigureCommonServices(services);
             services.AddSingleton<ISecretsManager, UserSecretsSecretManager>();
-            services.AddSingleton<IAuthorizationHandler, LocalAuthHandler>();
+            services.AddSingleton<IAuthorizationHandler, AlwaysAllowAuthHandler>();
         }
 
         public void ConfigureProductionServices(IServiceCollection services)
@@ -135,14 +175,21 @@ namespace CatCam.API
                 // Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(options =>
+                {
+                    options.EnableTryItOutByDefault();
+                    options.OAuthUsePkce();
+                    options.OAuthClientId("a6fe10f9-9e44-4865-8ee8-ccacca8715f1");
+                    options.OAuthScopes(new string[] { "api://catcam-api/api.access" });
+                });
             }
             else
             {
                 app.UseHsts();
+                // dev certs don't work on fedora. need to do manual setup to use https locally
+                app.UseHttpsRedirection();
             }
 
-            // app.UseHttpsRedirection();
 
             app.UseRouting();
             app.UseAuthentication();

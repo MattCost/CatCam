@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace CatCam.Common.Services.Authorization;
 
-public class LocalAuthHandler : IAuthorizationHandler
+public class AlwaysAllowAuthHandler : IAuthorizationHandler
 {
     public async Task HandleAsync(AuthorizationHandlerContext context)
     {
