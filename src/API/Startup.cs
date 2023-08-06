@@ -5,6 +5,8 @@ using CatCam.Common.Services.Secrets;
 using CatCam.Common.Services.Storage;
 using CatCam.Common.Models;
 using CatCam.Common.Services.EntityProvider;
+using Microsoft.AspNetCore.Authorization;
+using CatCam.Common.Services.Authorization;
 
 namespace CatCam.API
 {
@@ -18,7 +20,7 @@ namespace CatCam.API
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureCommonServices(IServiceCollection services)
         {
             // This is required to be instantiated before the OpenIdConnectOptions starts getting configured.
             // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
@@ -102,11 +104,24 @@ namespace CatCam.API
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
-
-            services.AddSingleton<ISecretsManager, UserSecretsSecretManager>();
-            services.AddSingleton<IClipBrowser, ClipBrowserAzureBlobStorage>();
-            services.AddSingleton<IEntityProvider, EntityProviderTableStorage>();
             services.AddHttpClient();
+
+            services.AddSingleton<IEntityProvider, EntityProviderTableStorage>();
+            services.AddSingleton<IClipBrowser, ClipBrowserAzureBlobStorage>();
+        }
+
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+            ConfigureCommonServices(services);
+            services.AddSingleton<ISecretsManager, UserSecretsSecretManager>();
+            services.AddSingleton<IAuthorizationHandler, LocalAuthHandler>();
+        }
+
+        public void ConfigureProductionServices(IServiceCollection services)
+        {
+            ConfigureCommonServices(services);
+            services.AddSingleton<ISecretsManager, EnvVarSecretManager>();
+            // todo auth handlers
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

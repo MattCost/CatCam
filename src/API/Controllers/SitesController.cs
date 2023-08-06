@@ -1,6 +1,7 @@
 using System.Formats.Asn1;
 using CatCam.Common.Exceptions;
 using CatCam.Common.Models;
+using CatCam.Common.Services.Authorization;
 using CatCam.Common.Services.EntityProvider;
 using CatCam.Common.Services.Storage;
 using Microsoft.AspNetCore.Authorization;
@@ -17,16 +18,21 @@ public class SitesController : ControllerBase
 
     private readonly ILogger<SitesController> _logger;
     private readonly IEntityProvider _entityProvider;
+    private readonly IAuthorizationService _authorizationService;
 
-    public SitesController(ILogger<SitesController> logger, IEntityProvider entityProvider)
+    public SitesController(ILogger<SitesController> logger, IEntityProvider entityProvider, IAuthorizationService authorizationService)
     {
         _logger = logger;
         _entityProvider = entityProvider;
+        _authorizationService = authorizationService;
     }
 
     [HttpGet("all")]
     public async Task<ActionResult<IEnumerable<SiteModel>>> Get()
     {
+        var authResult = await _authorizationService.AuthorizeAsync(User, null, SiteOperations.ListSites);
+        if(!authResult.Succeeded) return Forbid();
+        
         try
         {
             return Ok(await _entityProvider.GetSiteModelsAsync());
