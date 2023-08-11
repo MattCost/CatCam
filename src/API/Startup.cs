@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using CatCam.Common.Services.Authorization;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using CatCam.Common.Services.IOTHub;
 
 namespace CatCam.API
 {
@@ -148,6 +149,7 @@ namespace CatCam.API
 
             services.AddSingleton<IEntityProvider, EntityProviderTableStorage>();
             services.AddSingleton<IClipBrowser, ClipBrowserAzureBlobStorage>();
+            services.AddSingleton<IIOTHubService, IOTHubService>();
         }
 
         public void ConfigureDevelopmentServices(IServiceCollection services)
