@@ -10,8 +10,7 @@ using Microsoft.Azure.Devices.Shared;
 
 namespace CatCap.API.Controllers;
 
-// [Authorize]
-[AllowAnonymous]
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class DevicesController : ControllerBase
@@ -25,6 +24,7 @@ public class DevicesController : ControllerBase
         _logger = logger;
         _iOTHubClient = iOTHubClient;
     }
+    
     [HttpGet("deviceIds")]
     public async Task<IActionResult> GetDeviceIds()
     {
