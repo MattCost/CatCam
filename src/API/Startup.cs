@@ -35,12 +35,13 @@ namespace CatCam.API
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
             services.AddAuthorization(options =>
             {
+                // For initial version, all controllers will use the fallback policy to require an auth'ed user
                 options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 
-                options.AddPolicy("BadgeEntry", policy =>
-                        policy.RequireAssertion(context => context.User.HasClaim(c =>
-                            (c.Type == "BadgeId" || c.Type == "TemporaryBadgeId")
-                            && c.Issuer == "https://microsoftsecurity")));
+                // options.AddPolicy("BadgeEntry", policy =>
+                //         policy.RequireAssertion(context => context.User.HasClaim(c =>
+                //             (c.Type == "BadgeId" || c.Type == "TemporaryBadgeId")
+                //             && c.Issuer == "https://microsoftsecurity")));
             });
 
             // or if you want to explicitly set the values
@@ -144,6 +145,10 @@ namespace CatCam.API
             services.AddSwaggerGen(config =>
             {
                 config.AddSecurityDefinition(scheme.Reference.Id, scheme);
+                config.AddSecurityRequirement( new OpenApiSecurityRequirement
+                {
+                    { scheme, Array.Empty<string>()}
+                });
             });
             services.AddHttpClient();
 
