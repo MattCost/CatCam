@@ -1,4 +1,4 @@
-namespace CatCam.EdgeCommon.Messages;
+namespace CatCam.EdgeCommon.Messages.Telemetry;
 
 public class ClipCreated
 {

@@ -1,4 +1,4 @@
-using CatCam.EdgeCommon.Messages;
+using CatCam.EdgeCommon.Messages.Telemetry;
 using CatCam.EdgeCommon.Modules;
 using CatCam.EdgeCommon.Services.Clients;
 using CatCam.EdgeCommon.Services.FileUpload;
