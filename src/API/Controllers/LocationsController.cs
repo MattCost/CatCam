@@ -11,65 +11,35 @@ namespace CatCap.API.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class LocationsController : ControllerBase
+public class LocationsController : EntityProviderBaseController
 {
-
-    private readonly ILogger<LocationsController> _logger;
-    private readonly IEntityProvider _entityProvider;
-
-    public LocationsController(ILogger<LocationsController> logger, IEntityProvider entityProvider)
+    public LocationsController(ILogger<EntityProviderBaseController> logger, IEntityProvider entityProvider) : base(logger, entityProvider)
     {
-        _logger = logger;
-        _entityProvider = entityProvider;
     }
 
     [HttpGet("all")]
     public async Task<ActionResult<IEnumerable<LocationModel>>> Get()
     {
-        try
-        {
-            return Ok(await _entityProvider.GetLocationModelsAsync());
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Exception trying to get Locations.");
-            return Problem();
-        }
+        return await EntityProviderActionHelper( async () => { return await EntityProvider.GetLocationModelsAsync();}, "Unable to get locations");
     }
 
     [HttpGet("{id:Guid}")]
     public async Task<ActionResult<LocationModel>> Get([FromRoute] Guid id)
     {
-        try
-        {
-            return Ok(await _entityProvider.GetLocationModelAsync(id));
-        }
-        catch(EntityNotFoundException)
-        {
-            return NotFound();
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Exception trying to get Location Id {Id}.", id);
-            return Problem();
-        }
+        return await EntityProviderActionHelper( async () => { return await EntityProvider.GetLocationModelAsync(id);} , "Unable to get location");
     }
 
     [HttpPost]
     public async Task<ActionResult> Post([FromBody] LocationModel model)
     {
-        try
-        {
-            await _entityProvider.UpsertLocationModelAsync(model);
-            return Ok();
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Exception trying to create Location.");
-            return Problem();
-        }
+        return await EntityProviderActionHelper( async () => await EntityProvider.UpsertLocationModelAsync(model), "Unable to create or update location");
     }
 
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> Delete([FromRoute] Guid id)
+    {
+        return await EntityProviderActionHelper( async () => await EntityProvider.DeleteLocationModelAsync(id), "Unable to delete location.");
+    }
 }
 
 

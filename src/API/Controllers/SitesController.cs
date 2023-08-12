@@ -12,18 +12,10 @@ namespace CatCap.API.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class SitesController : ControllerBase
+public class SitesController : EntityProviderBaseController
 {
-
-    private readonly ILogger<SitesController> _logger;
-    private readonly IEntityProvider _entityProvider;
-    // private readonly IAuthorizationService _authorizationService;
-
-    public SitesController(ILogger<SitesController> logger, IEntityProvider entityProvider) //, IAuthorizationService authorizationService)
+    public SitesController(ILogger<EntityProviderBaseController> logger, IEntityProvider entityProvider) : base(logger, entityProvider)
     {
-        _logger = logger;
-        _entityProvider = entityProvider;
-        // _authorizationService = authorizationService;
     }
 
     [HttpGet("all")]
@@ -31,64 +23,25 @@ public class SitesController : ControllerBase
     {
         // var authResult = await _authorizationService.AuthorizeAsync(User, null, SiteOperations.ListSites);
         // if(!authResult.Succeeded) return Forbid();
-        
-        try
-        {
-            return Ok(await _entityProvider.GetSiteModelsAsync());
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Exception trying to get Sites.");
-            return Problem();
-        }
+        return await EntityProviderActionHelper( async () => { return await EntityProvider.GetSiteModelsAsync();}, "Unable to get Sites");
     }
 
     [HttpGet("{id:Guid}")]
     public async Task<ActionResult<SiteModel>> Get([FromRoute] Guid id)
     {
-        try
-        {
-            return Ok(await _entityProvider.GetSiteModelAsync(id));
-        }
-        catch(EntityNotFoundException)
-        {
-            return NotFound();
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Exception trying to get Sites.");
-            return Problem();
-        }
+        return await EntityProviderActionHelper( async () => { return await EntityProvider.GetSiteModelAsync(id);}, "Unable to get Site");
     }
 
     [HttpPost]
     public async Task<ActionResult> Post([FromBody] SiteModel model)
     {
-        try
-        {
-            await _entityProvider.UpsertSiteModelAsync(model);
-            return Ok();
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Exception trying to get Sites.");
-            return Problem();
-        }
+        return await EntityProviderActionHelper( async () => await EntityProvider.UpsertSiteModelAsync(model), "Unable to update Site");
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> Delete([FromRoute] Guid id)
     {
-        try
-        {
-            await _entityProvider.DeleteSiteModelAsync(id);
-            return Ok();
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Exception trying to delete site Id {Id}", id);
-            return Problem();
-        }
+        return await EntityProviderActionHelper( async () => await EntityProvider.DeleteSiteModelAsync(id), "Unable to delete Site");
     }
 
 }
