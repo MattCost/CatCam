@@ -1,7 +1,7 @@
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Shared;
 
-namespace CatCam.EdgeModules.FileWatcher.Services;
+namespace CatCam.EdgeCommon.Services.Clients;
 
 public interface IModuleClientWrapper
 {
@@ -11,5 +11,7 @@ public interface IModuleClientWrapper
     public Task SetDesiredPropertyUpdateCallbackAsync(DesiredPropertyUpdateCallback callback, object userContext, CancellationToken cancellationToken);
     public Task SendEventAsync(string outputName, Message message, CancellationToken cancellationToken);    
     public void SetConnectionStatusChangesHandler(ConnectionStatusChangesHandler statusChangesHandler);    
+    public Task SetInputMessageHandlerAsync(string name, MessageHandler messageHandler, object userContext);
+    public Task SendMessage(string channel, object message, CancellationToken cancellationToken);
 
 }

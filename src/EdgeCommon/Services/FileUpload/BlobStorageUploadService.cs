@@ -1,18 +1,19 @@
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using CatCam.EdgeCommon.Services.Clients;
 using Microsoft.Azure.Devices.Client;
 using Microsoft.Azure.Devices.Client.Transport;
+using Microsoft.Extensions.Logging;
 
-namespace CatCam.EdgeModules.FileWatcher.Services;
+namespace CatCam.EdgeCommon.Services.FileUpload;
 public class BlobStorageUploadService : IFileUploadService
 {
-    private readonly DeviceClient _deviceClient;
     private readonly ILogger _logger;
-    public BlobStorageUploadService(ILogger<BlobStorageUploadService> logger)
+    private readonly IDeviceClientWrapper _deviceClient;
+    public BlobStorageUploadService(ILogger<BlobStorageUploadService> logger, IDeviceClientWrapper deviceClient)
     {
         _logger = logger;
-        var connectionString = Environment.GetEnvironmentVariable("IOT-HUB-CONNECTION-STRING");
-        _deviceClient = DeviceClient.CreateFromConnectionString(connectionString);
+        _deviceClient = deviceClient;
     }
 
     public async Task UploadFile(string filename, CancellationToken cancellationToken)

@@ -1,4 +1,5 @@
-namespace CatCam.EdgeModules.FileWatcher.Services;
+namespace CatCam.EdgeCommon.Services.FileUpload;
+
 
 public interface IFileUploadService
 {

@@ -1,25 +1,47 @@
 
+
+using System.Runtime.Serialization.Formatters;
+using CatCam.EdgeCommon.Modules;
+using CatCam.EdgeCommon.Services.Clients;
+using CatCam.EdgeCommon.Services.FileUpload;
 using CatCam.EdgeModules.FileWatcher;
-using CatCam.EdgeModules.FileWatcher.Services;
+using CatCat.EdgeCommon.Services.Clients;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         IHost host = Host.CreateDefaultBuilder(args)
-            .ConfigureServices(services => 
+            .ConfigureServices( (context, services) => 
             {
-                services.AddHostedService<ModuleBackgroundService>();
-                #if DEBUG
-                services.AddSingleton<IModuleClientWrapper, DebugModuleClientWrapper>();
-                services.AddSingleton<IFileUploadService, DebugUploadService>();
-                #else
-                services.AddSingleton<IModuleClientWrapper, ModuleClientWrapper>();
-                services.AddSingleton<IFileUploadService, BlobStorageUploadService>();
-                #endif
+                ConfigureService(context.HostingEnvironment, context.Configuration, services);
             })
+            .ConfigureServices( services => services.AddHostedService<EdgeModuleWorker>())
             .Build();
 
-        host.Run();
+        await host.RunAsync();
+    }
+
+    private static void ConfigureService(IHostEnvironment hostEnvironment, IConfiguration configuration, IServiceCollection services)
+    {
+        services.AddSingleton<IEdgeModule, FileWatcherEdgeModule>();
+        if(hostEnvironment.IsDevelopment())
+        {
+            services.Configure<FileWatcherConfiguration>((options) =>
+            {
+                options.WatchPath = "/tmp/watchMe";
+                options.AlwaysUpload = true;
+                options.SendMessage = true;
+            });
+            services.AddSingleton<IModuleClientWrapper, DebugModuleClientWrapper<FileWatcherConfiguration>>();
+            services.AddSingleton<IFileUploadService, DebugUploadService>();
+        }
+
+        if(hostEnvironment.IsProduction())
+        {
+            services.AddSingleton<IModuleClientWrapper, ModuleClientWrapper>();
+            services.AddSingleton<IDeviceClientWrapper, DeviceClientWrapper>();
+            services.AddSingleton<IFileUploadService, BlobStorageUploadService>();
+       }
     }
 }

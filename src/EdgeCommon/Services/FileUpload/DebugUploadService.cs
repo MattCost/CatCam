@@ -1,4 +1,6 @@
-namespace CatCam.EdgeModules.FileWatcher.Services;
+using Microsoft.Extensions.Logging;
+
+namespace CatCam.EdgeCommon.Services.FileUpload;
 
 public class DebugUploadService : IFileUploadService
 {
