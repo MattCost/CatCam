@@ -54,15 +54,21 @@ azure ad / app reg
 
 ## TODO
 - app roles and auth handlers needed? not for prototype
+- finish API crud operations
+- basic webapp to do crud operations
 - iothub client wrapper
-    - list devices
-    - generate deployment
-    - send deployment
-- outline apis needed
-- can we automate app service secret/env var configuration from terraform?
+    - list devices 
+    - get device twin
+    - get module twin
+    - update device twin
+    - update module twin
+    - generate deployment - future
+    - send deployment - future
+- terraform put secrets into kv
+- deployment pipeline will get secrets, and set the env vars in the app service api/webapp slots
 - create tf "bootstamp" script to create SP + storage act.
 - setup tf to use remote state in said storage act.
-- define site/location/camera structure
+- document entity map
 
 ## Secrets
 dotnet user-secrets init
@@ -74,10 +80,11 @@ opencv can open rtsp on pi, seems slow.
 
 ## Live Stream Mode
 Camera connected to pi
-webapp submits request to api "start livestream"
-api opens websocket
-api sends response to webapp with websocket port number.
-api invokes direct method to pi "direct stream pls"
-pi streams to websocket
-browser pulls from websocket
+user clicks "livestream button"
+webapp opens websocket
+webapp submits request to api "start livestream", websocket info is included
+api invokes direct method to pi, websocket info is included
+pi acks direct method
+pi starts sending frames to websocket
+browser displays those images
 
