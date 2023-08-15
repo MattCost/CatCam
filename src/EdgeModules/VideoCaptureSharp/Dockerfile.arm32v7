@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
+WORKDIR /app
+
+COPY . ./
+RUN dotnet restore EdgeModules/VideoCaptureSharp/src -r linux-arm
+RUN dotnet publish EdgeModules/VideoCaptureSharp/src -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/runtime:7.0-bullseye-slim-arm32v7
+RUN apt update
+RUN apt install -y --no-install-recommends libgeotiff5 libfreetype6 libdc1394-25 libavcodec58 libavformat58 libswscale5 libgtk-3-0 libvtk9
+
+WORKDIR /app
+COPY --from=build-env /app/out ./
+
+ENTRYPOINT ["dotnet", "VideoCaptureSharp.dll"]

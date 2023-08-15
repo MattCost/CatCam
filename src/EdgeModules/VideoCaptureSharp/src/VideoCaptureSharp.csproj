@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  
+  <ItemGroup>
+        <Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="appsettings.*.json" CopyToOutputDirectory="PreserveNewest" />
+        <!-- <Content Include="appsettings.*.json" DependentUpon="appsettings.json" CopyToOutputDirectory="PreserveNewest" /> -->
+        <!-- <Content Include="appsettings.*.json" Exclude="appsettings.$(EnvironmentName).json" DependentUpon="appsettings.json" CopyToOutputDirectory="Never" /> -->
+        <!-- <Content Include="appsettings.$(EnvironmentName).json" DependentUpon="appsettings.json" CopyToOutputDirectory="PreserveNewest" /> -->
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\EdgeCommon\EdgeCommon.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Emgu.CV" Version="4.7.0.5276" />
+    <PackageReference Include="Emgu.CV.runtime.debian-arm" Version="4.7.0.5276" />
+  </ItemGroup>
+  
+</Project>
