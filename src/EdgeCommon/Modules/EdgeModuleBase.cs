@@ -12,8 +12,8 @@ namespace CatCam.EdgeCommon.Modules;
 public abstract class EdgeModuleBase<TConfiguration> : IEdgeModule
     where TConfiguration : EdgeModuleConfigurationBase, new()
 {
-    private readonly ILogger<EdgeModuleBase<TConfiguration>> _logger;
-    protected ILogger Logger => _logger;
+    protected ILogger<EdgeModuleBase<TConfiguration>> Logger { get; private init; }
+    // protected ILogger Logger => _logger;
 
     private readonly IModuleClientWrapper _moduleClient;
     protected IModuleClientWrapper ModuleClient => _moduleClient;
@@ -26,11 +26,11 @@ public abstract class EdgeModuleBase<TConfiguration> : IEdgeModule
 
     private Dictionary<string, MessageHandler> _inputMessageHandlers = new Dictionary<string, MessageHandler>();
 
-    public event FatalErrorEventOccurred? FatalErrorOccurred; 
+    public event FatalErrorEventOccurred? FatalErrorOccurred;
 
     public EdgeModuleBase(ILogger<EdgeModuleBase<TConfiguration>> logger, IModuleClientWrapper moduleClient)
     {
-        _logger = logger;
+        Logger = logger;
         _moduleClient = moduleClient;
     }
 
@@ -79,7 +79,7 @@ public abstract class EdgeModuleBase<TConfiguration> : IEdgeModule
 
         await ProcessUpdatedConfiguration();
 
-        if(IsInitialized)
+        if (IsInitialized)
         {
             await StartProcessing(CancellationToken.None);
         }
@@ -92,15 +92,15 @@ public abstract class EdgeModuleBase<TConfiguration> : IEdgeModule
 
     protected void SetupMessageHandler(string name, MessageHandler messageHandler)
     {
-        if(string.IsNullOrEmpty(name))
+        if (string.IsNullOrEmpty(name))
         {
             throw new ArgumentNullException(nameof(name));
         }
-        if(messageHandler is null)
+        if (messageHandler is null)
         {
             throw new ArgumentNullException(nameof(messageHandler));
         }
-        
+
         _inputMessageHandlers[name] = messageHandler;
     }
 
@@ -155,7 +155,7 @@ public abstract class EdgeModuleBase<TConfiguration> : IEdgeModule
     protected void OnFatalErrorOccurred(Exception exception, string message, bool shutdown = true)
     {
         FatalErrorOccurred?.Invoke(this, new FatalErrorEventArgs(exception, message));
-        if(shutdown)
+        if (shutdown)
         {
             _moduleCTS.Cancel();
         }
