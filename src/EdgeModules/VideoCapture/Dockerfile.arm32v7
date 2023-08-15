@@ -2,10 +2,11 @@ FROM arm32v7/python:3.7-slim-buster
 
 WORKDIR /app
 
-# RUN pip install --upgrade pip
+RUN apt-get update
+RUN apt-get install -y libva-x11-2 libvpx5 libxinerama1 libcroco3 libgraphite2-3 libwayland-egl1 libx264-155 libopenmpt0 libgsm1 libmp3lame0 libdatrie1 libxfixes3 libxcomposite1 libzvbi0 libwayland-client0 libchromaprint1 libgtk-3-0 libxi6 libxkbcommon0 libaom0 libogg0 libsnappy1v5 libwebpmux3 libbluray2 libspeex1 libpangocairo-1.0-0 libfontconfig1 libtheora0 libxvidcore4 libshine3 libvorbis0a libsoxr0 libx265-165 libvorbisenc2 libxdamage1 libatk-bridge2.0-0 libtwolame0 libthai0 libgfortran5 librsvg2-2 libcodec2-0.8.1 libxcb-shm0 libavcodec58 libswscale5 libmpg123-0 libatspi2.0-0 libdrm2 libpangoft2-1.0-0 libcairo2 libswresample3 libgme0 libwayland-cursor0 libxrender1 libopenjp2-7 libtiff5 libxcursor1 libjbig0 libgdk-pixbuf2.0-0 libcairo-gobject2 libxcb-render0 libatlas3-base libva2 libpango-1.0-0 libssh-gcrypt-4 libxrandr2 libva-drm2 libharfbuzz0b libvorbisfile3 libavformat58 libepoxy0 libwavpack1 libatk1.0-0 libwebp6 libvdpau1 libavutil56 libpixman-1-0 libopus0
+
 COPY requirements.txt ./
 RUN pip install --extra-index-url=https://www.piwheels.org/simple  --only-binary=:all: -r requirements.txt
-
 COPY . .
 
 CMD [ "python3", "-u", "./main.py" ]

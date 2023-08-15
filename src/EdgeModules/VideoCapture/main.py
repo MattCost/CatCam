@@ -6,8 +6,23 @@ from azure.iot.device.aio import IoTHubModuleClient
 import cv2
 import os
 import datetime
-from .configs import ModuleConfig
+import shutil
+# from .configs import ModuleConfig
 
+class ModuleConfig:
+    cameraUrl = 'http://192.168.50.22:8080/video'
+    cameraName = 'camera'
+    enableSaving = True
+
+    minCaptureDuration = 2
+    minContourArea = 1000
+    postMotionCaptureDuration = 5
+   
+    debugLog = True
+    displayTimestampFormat = "%A %d %B %Y %I:%M:%S%p"
+    savePathBase = '/data/'
+    filenameTimestampFormat = "%Y%m%d_%H%M%S"
+    filenameExtension = ".avi"
 
 # Globals
 twinCallbacks = 0
@@ -39,6 +54,7 @@ async def receive_twin_patch_handler(twin_patch):
         activeConfig.cameraName = twin_patch["cameraName"]
 
     twinCallbacks += 1
+    stopProcessing = False
     print("Total calls confirmed: {}".format(twinCallbacks))
 
 
@@ -61,13 +77,13 @@ async def run_sample(client):
         saveCapture = False
         motionStoppedAt = datetime.datetime.now()
         motionStartedAt = motionStoppedAt
-        saveCaptureFilename = activeConfig.savePathBase + activeConfig.cameraName + motionStartedAt.strftime(activeConfig.filenameTimestampFormat) + ".tmp"
+        saveCaptureFilename = "/tmp/" + activeConfig.cameraName + motionStartedAt.strftime(activeConfig.filenameTimestampFormat) + activeConfig.filenameExtension
 
         while not stopProcessing:
             ret, frame = cap.read()
             if not ret:
                 print('Error reading video stream')
-                break;
+                break
             
             timestamp = datetime.datetime.now()
             
@@ -96,8 +112,8 @@ async def run_sample(client):
                 if not motionActive:
                     motionStartedAt = timestamp
                     if activeConfig.enableSaving:
-                        saveCaptureFilenameTmp = activeConfig.savePathBase + activeConfig.cameraName + motionStartedAt.strftime(activeConfig.filenameTimestampFormat) + ".tmp" 
-                        saveCaptureFilename = activeConfig.savePathBase + activeConfig.cameraName + activeConfig.motionStartedAt.strftime(activeConfig.filenameTimestampFormat) + activeConfig.filenameExtension
+                        saveCaptureFilenameTmp = "/tmp/" + activeConfig.cameraName + motionStartedAt.strftime(activeConfig.filenameTimestampFormat) + activeConfig.filenameExtension
+                        saveCaptureFilename = activeConfig.savePathBase + activeConfig.cameraName + motionStartedAt.strftime(activeConfig.filenameTimestampFormat) + activeConfig.filenameExtension
                         saveCapture = True
                         size = ( int(cap.get(3)), int(cap.get(4)))
                         dest = cv2.VideoWriter(saveCaptureFilenameTmp, cv2.VideoWriter_fourcc(*'MJPG'), 10, size)
@@ -154,7 +170,8 @@ async def run_sample(client):
                         print("Post Capture duration elapsed. Stopping capture")
                     saveCapture = False;
                     dest.release()
-                    os.rename(saveCaptureFilenameTmp, saveCaptureFilename);
+                    # os.rename(saveCaptureFilenameTmp, saveCaptureFilename)
+                    shutil.copyfile(saveCaptureFilenameTmp, saveCaptureFilename)
                     # flush file
             
             # Check for exit key
@@ -162,7 +179,7 @@ async def run_sample(client):
             #    break
 
         #end of while not stop processing           
-        print("processing will restart.");
+        print("processing will restart.")
         cap.release()
         cv2.destroyAllWindows()
     
