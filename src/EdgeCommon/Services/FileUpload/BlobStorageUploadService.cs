@@ -18,47 +18,45 @@ public class BlobStorageUploadService : IFileUploadService
 
     public async Task UploadFile(string filename, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Entering Upload File {file}. Waiting for file write to be complete", filename);
+        _logger.LogDebug("Entering Upload File {file}. Calculating Blob Filename.", filename);
         var filenameParts = filename.Split('/');
         string blobName = filenameParts[^1];
         _logger.LogDebug("Parts Count {Count}. Parts {Parts}", filenameParts.Length, filenameParts);
-        if(filenameParts.Length >=2)
+        if (filenameParts.Length >= 2)
         {
             blobName = filenameParts[^2] + "/" + filenameParts[^1];
         }
         _logger.LogDebug("Blob Name {BlobName}", blobName);
-
-        try
+        _logger.LogDebug("Waiting for File Write to be complete");
+        var startedAt = DateTime.UtcNow;
+        var maxDuration = TimeSpan.FromMinutes(5);
+        do
         {
-            using FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
-            double delta = 1;
-            do
+            try
             {
-                var start = fileStream.Length;
-                await Task.Delay(1000);
-                delta = fileStream.Length - start;
+                using FileStream fileStream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.None);
+                await DoTheUpload(fileStream, blobName, cancellationToken);
+                return;
             }
-            while(delta > 0);
-        
-            await DoTheUpload(fileStream, blobName, cancellationToken);
-            return;
+            catch(IOException ex) when (ex.Message.Contains("because it is being used by another process"))
+            {
+                await Task.Delay(500,cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception while trying to open file {filename}", filename);
+                return;
+            }
         }
-        // catch(IOException)
-        // {
-        //     await Task.Delay(100,cancellationToken);
-        // }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Exception while trying to open file {filename}", filename);
-            return;
-        } 
+        while(DateTime.UtcNow - startedAt < maxDuration);
+        _logger.LogError("Waited {Duration} for access to file, but timed out", maxDuration);
     }
-    
+
     private async Task DoTheUpload(FileStream fileStreamSource, string blobName, CancellationToken cancellationToken)
     {
         var filename = Path.GetFileName(fileStreamSource.Name);
         _logger.LogDebug("Uploading file {File}", filename);
-        
+
         try
         {
             var fileUploadSasUriRequest = new FileUploadSasUriRequest
@@ -68,7 +66,7 @@ public class BlobStorageUploadService : IFileUploadService
 
             _logger.LogTrace("Sending Sas uri request");
             FileUploadSasUriResponse sasUri = await _deviceClient.GetFileUploadSasUriAsync(fileUploadSasUriRequest, cancellationToken);
-            
+
             _logger.LogTrace("Getting blob uri from response");
             Uri uploadUri = sasUri.GetBlobUri();
 
