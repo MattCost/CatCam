@@ -25,6 +25,7 @@ internal class Program
     private static void ConfigureService(IHostEnvironment hostEnvironment, IConfiguration configuration, IServiceCollection services)
     {
         services.AddSingleton<IEdgeModule, FileWatcherEdgeModule>();
+        
         if(hostEnvironment.IsDevelopment())
         {
             services.Configure<FileWatcherConfiguration>((options) =>
