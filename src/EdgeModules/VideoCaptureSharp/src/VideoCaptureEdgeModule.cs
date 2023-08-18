@@ -199,12 +199,9 @@ public class VideoCaptureEdgeModule : EdgeModuleBase<VideoCaptureConfiguration>
                             {
                                 if (now - _motionEndedAt > _postMotionDuration)
                                 {
-                                    Logger.LogDebug("Stopping capture. Flushing temp file. Renaming to finished file");
-                                    //shut off capture active
+                                    Logger.LogDebug("Stopping capture. Completing video file, then moving to final location.");
                                     _captureActive = false;
 
-                                    // dest.release()
-                                    //does the same?
                                     _videoWriter?.Dispose();
 
                                     File.Move(
