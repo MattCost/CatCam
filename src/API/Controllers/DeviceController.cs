@@ -87,4 +87,11 @@ public class DevicesController : ControllerBase
         return Ok();
     }
 
+    [HttpGet("{iotDeviceId}/currentConfig")]
+    public async Task<IActionResult> GetCurrentConfiguration([FromRoute] string iotDeviceId)
+    {
+        await _iOTHubClient.AddModule(iotDeviceId, "test", new object{});
+        return Ok();
+    }
+
 }

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.Json.Nodes;
 using CatCam.Common.Exceptions;
 using CatCam.Common.Services.Secrets;
@@ -95,7 +96,7 @@ public class IOTHubService : IIOTHubService
     {
         await RegistryManager.OpenAsync();
         var twin = await RegistryManager.GetTwinAsync(iotHubDeviceId);
-        var desired = twin.Properties.Desired; 
+        var desired = twin.Properties.Desired;
         _logger.LogDebug("Desired: {Desired}.", desired);
         _logger.LogDebug("Desired string: {Desired}.", desired.ToJson());
         return twin;
@@ -157,4 +158,33 @@ public class IOTHubService : IIOTHubService
 
     public async Task SetModuleDesiredProperty(string iotHubDeviceId, string moduleName, string propertyName, object? value) => await SetModuleDesiredProperties(iotHubDeviceId, moduleName, new Dictionary<string, object?> { { propertyName, value } });
     public async Task RemoveModuleDesiredProperty(string iotHubDeviceId, string moduleName, string propertyName) => await SetModuleDesiredProperty(iotHubDeviceId, moduleName, propertyName, null);
+
+    public async Task AddModule(string iotHubDeviceId, string moduleName, object moduleContent)
+    {
+        var currentModules = await RegistryManager.GetModulesOnDeviceAsync(iotHubDeviceId);
+        
+        _logger.LogDebug("There are {Count} modules", currentModules.Count());
+
+       
+        // currentModules = currentModules.Where( module => module.Id != moduleName);
+        var content = new ConfigurationContent
+        {
+            // ModulesContent = outerDict
+            ModulesContent = new Dictionary<string, IDictionary<string, object>>()
+        };
+        content.ModulesContent["modules"] = new Dictionary<string, object>{ {"innerKey", "moduleComfig"}};
+
+        foreach(var module in currentModules)
+        {
+            content.ModulesContent["modules"][module.Id] = module.ToString();
+        }
+            // ModulesConent is required
+            // public IDictionary<string, IDictionary<string, object>> ModulesContent { get; set; }
+            // DeviceContent is optional
+            // ModuleContent is n/a    
+
+        _logger.LogDebug("Outgoing content {Content}", content);
+
+        // await RegistryManager.ApplyConfigurationContentOnDeviceAsync(iotHubDeviceId, content)
+    }
 }

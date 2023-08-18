@@ -18,4 +18,7 @@ public interface IIOTHubService
     public Task RemoveModuleDesiredProperty(string iotHubDeviceId, string moduleName, string propertyName);
     public Task SetModuleDesiredProperties(string iotHubDeviceId, string moduleName, Dictionary<string, object?> properties);
     
+
+    public Task AddModule(string iotHubDeviceId, string moduleName, object moduleContent);
+
 }
